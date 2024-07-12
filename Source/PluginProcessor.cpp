@@ -22,6 +22,17 @@ F7MBCompAudioProcessor::F7MBCompAudioProcessor()
                        )
 #endif
 {
+    attack = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Attack"));
+    jassert(attack != nullptr);
+
+    release = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Release"));
+    jassert(release != nullptr);
+
+    threshold = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Threshold"));
+    jassert(threshold != nullptr);
+
+    ratio = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter("Ratio"));
+    jassert(ratio != nullptr);
 }
 
 F7MBCompAudioProcessor::~F7MBCompAudioProcessor()
@@ -95,6 +106,13 @@ void F7MBCompAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+    juce::dsp::ProcessSpec spec;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
+    spec.sampleRate = sampleRate;
+
+    compressor.prepare(spec);
 }
 
 void F7MBCompAudioProcessor::releaseResources()
@@ -144,18 +162,15 @@ void F7MBCompAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    compressor.setAttack(attack->get());
+    compressor.setRelease(release->get());
+    compressor.setThreshold(threshold->get());
+    compressor.setRatio( ratio->getCurrentChoiceName().getFloatValue() );
 
-        // ..do something to the data...
-    }
+    auto block = juce::dsp::AudioBlock<float>(buffer);
+    auto context = juce::dsp::ProcessContextReplacing<float>(block);
+
+    compressor.process(context);
 }
 
 //==============================================================================
