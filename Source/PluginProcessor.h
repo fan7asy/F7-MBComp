@@ -72,7 +72,6 @@ namespace Params
             {Bypassed_Low_Band, "Bypassed Low Band"},
             {Bypassed_Mid_Band, "Bypassed Mid Band"},
             {Bypassed_High_Band, "Bypassed High Band"},
-
         };
 
         return params;
@@ -173,6 +172,13 @@ private:
     //juce::AudioParameterChoice* ratio{ nullptr };
     //juce::AudioParameterBool* bypassed{ nullptr };
     CompressorBand compressor;
+    
+    using Filter = juce::dsp::LinkwitzRileyFilter<float>;
+    Filter LP, HP;
+    
+    juce::AudioParameterFloat* lowCrossover { nullptr };
+    
+    std::array<juce::AudioBuffer<float>, 2> filterBuffers;
     ////==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (F7MBCompAudioProcessor)
 };
