@@ -51,12 +51,19 @@ F7MBCompAudioProcessor::F7MBCompAudioProcessor()
 
     boolHelper(compressor.bypassed, Names::Bypassed_Low_Band);
     
-    floatHelper(lowCrossover, Names::Low_Mid_Crossover_Freq);
+    floatHelper(lowMidCrossover, Names::Low_Mid_Crossover_Freq);
+    floatHelper(midHighCrossover, Names::Mid_High_Crossover_Freq);
     
-    LP.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
-    HP.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
+    LP1.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
+    HP1.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
 
-    AP.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
+    AP2.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
+
+    LP2.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
+    HP2.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
+
+    //invAP1.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
+    //invAP2.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
 }
 
 F7MBCompAudioProcessor::~F7MBCompAudioProcessor()
@@ -138,12 +145,19 @@ void F7MBCompAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
     compressor.prepare(spec);
     
-    LP.prepare(spec);
-    HP.prepare(spec);
+    LP1.prepare(spec);
+    HP1.prepare(spec);
 
-    AP.prepare(spec);
-    apBuffer.setSize(spec.numChannels, samplesPerBlock);
+    AP2.prepare(spec);
     
+    LP2.prepare(spec);
+    HP2.prepare(spec);
+
+    //invAP1.prepare(spec);
+    //invAP2.prepare(spec);
+
+    //invAPBuffer.setSize(spec.numChannels, samplesPerBlock);
+
     for (auto& buffer : filterBuffers)
     {
         buffer.setSize(spec.numChannels, samplesPerBlock);
@@ -204,28 +218,47 @@ void F7MBCompAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         fb = buffer;
     }
     
-    auto cutoff = lowCrossover->get();
-    LP.setCutoffFrequency(cutoff);
-    HP.setCutoffFrequency(cutoff);
+    //invAPBuffer = buffer;
 
-    AP.setCutoffFrequency(cutoff);
+    auto lowMidCutoffFreq = lowMidCrossover->get();
+    LP1.setCutoffFrequency(lowMidCutoffFreq);
+    HP1.setCutoffFrequency(lowMidCutoffFreq);
+    //invAP1.setCutoffFrequency(lowMidCutoffFreq);
+
+    auto midHighCutoffFreq = midHighCrossover->get();
+    AP2.setCutoffFrequency(midHighCutoffFreq);
+    LP2.setCutoffFrequency(midHighCutoffFreq);
+    HP2.setCutoffFrequency(midHighCutoffFreq);
+    //invAP2.setCutoffFrequency(midHighCutoffFreq);
     
     auto fb0Block = juce::dsp::AudioBlock<float>(filterBuffers[0]);
     auto fb1Block = juce::dsp::AudioBlock<float>(filterBuffers[1]);
+    auto fb2Block = juce::dsp::AudioBlock<float>(filterBuffers[2]);
     
     auto fb0Ctx = juce::dsp::ProcessContextReplacing<float>(fb0Block);
     auto fb1Ctx = juce::dsp::ProcessContextReplacing<float>(fb1Block);
+    auto fb2Ctx = juce::dsp::ProcessContextReplacing<float>(fb2Block);
     
-    LP.process(fb0Ctx);
-    HP.process(fb1Ctx);
+    LP1.process(fb0Ctx);
+    AP2.process(fb0Ctx);
+
+    HP1.process(fb1Ctx);
+    filterBuffers[2] = filterBuffers[1];
+    LP2.process(fb1Ctx);
+
+    HP2.process(fb2Ctx);
     
+    //auto invAPBlock = juce::dsp::AudioBlock<float>(invAPBuffer);
+    //auto invAPCtx = juce::dsp::ProcessContextReplacing<float>(invAPBlock);
+
+    //invAP1.process(invAPCtx);
+    //invAP2.process(invAPCtx);
+
     auto numSamples = buffer.getNumSamples();
     auto numChannels = buffer.getNumChannels();
 
-    apBuffer = buffer;
-    auto apBlock = juce::dsp::AudioBlock<float>(apBuffer);
-    auto apContext = juce::dsp::ProcessContextReplacing<float>(apBlock);
-    AP.process(apContext);
+    if (compressor.bypassed->get())
+        return;
     
     buffer.clear();
     
@@ -237,28 +270,19 @@ void F7MBCompAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         }
     };
 
-    //if ( !compressor.bypassed->get() )
-    //{
-    //    addFilterBand(buffer, filterBuffers[0]);
-    //    addFilterBand(buffer, filterBuffers[1]);
-    //}
-    //else
-    //{
-    //    addFilterBand(buffer, apBuffer);
-    //}
-
     addFilterBand(buffer, filterBuffers[0]);
     addFilterBand(buffer, filterBuffers[1]);
+    addFilterBand(buffer, filterBuffers[2]);
 
-    if (compressor.bypassed->get())
-    {
-        for (auto ch = 0; ch < numChannels; ++ch)
-        {
-            juce::FloatVectorOperations::multiply(apBuffer.getWritePointer(ch), -1.f, numSamples);
-        }
+    //if (compressor.bypassed->get())
+    //{
+    //    for (auto ch = 0; ch < numChannels; ++ch)
+    //    {
+    //        juce::FloatVectorOperations::multiply(invAPBuffer.getWritePointer(ch), -1.f, numSamples);
+    //    }
 
-        addFilterBand(buffer, apBuffer);
-    }
+    //    addFilterBand(buffer, invAPBuffer);
+    //}
 }
 
 //==============================================================================
@@ -320,7 +344,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout F7MBCompAudioProcessor::crea
 
     layout.add(std::make_unique <AudioParameterBool>(params.at(Names::Bypassed_Low_Band), params.at(Names::Bypassed_Low_Band), false));
     
-    layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Low_Mid_Crossover_Freq), params.at(Names::Low_Mid_Crossover_Freq), NormalisableRange<float>(20, 20000, 1, 1), 500));
+    layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Low_Mid_Crossover_Freq), params.at(Names::Low_Mid_Crossover_Freq), NormalisableRange<float>(20, 999, 1, 1), 400));
+
+    layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Mid_High_Crossover_Freq), params.at(Names::Mid_High_Crossover_Freq), NormalisableRange<float>(1000, 20000, 1, 1), 2000));
 
     return layout;
 }
