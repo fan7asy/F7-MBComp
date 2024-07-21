@@ -10,10 +10,10 @@
 
 /*
 dsp goals
-1) figure out how to split the audio into 3 bands
-2) create parameters to control where this split happens
-3)prove that splitting into 3 bands produces no audible artifacts
-4) create audio parameters for the 3 compressor bands. these needs to live on each band instance
+1) figure out how to split the audio into 3 bands (DONE)
+2) create parameters to control where this split happens (DONE)
+3)prove that splitting into 3 bands produces no audible artifacts (DONE)
+4) create audio parameters for the 3 compressor bands. these needs to live on each band instance (DONE)
 5) add 2 remaining compressors
 6) add ability to mute/solo/bypass individual compressors
 7) add input/output gain to offset changes in output level
@@ -164,14 +164,11 @@ public:
 
     APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 private:
-    //juce::dsp::Compressor<float> compressor;
+    std::array<CompressorBand, 3> compressors;
 
-    //juce::AudioParameterFloat* attack{ nullptr };
-    //juce::AudioParameterFloat* release{ nullptr };
-    //juce::AudioParameterFloat* threshold{ nullptr };
-    //juce::AudioParameterChoice* ratio{ nullptr };
-    //juce::AudioParameterBool* bypassed{ nullptr };
-    CompressorBand compressor;
+    CompressorBand& lowBandComp = compressors[0];
+    CompressorBand& midBandComp = compressors[1];
+    CompressorBand& highBandComp = compressors[2];
     
     using Filter = juce::dsp::LinkwitzRileyFilter<float>;
     //     fc0  fc1
