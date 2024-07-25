@@ -352,8 +352,8 @@ bool F7MBCompAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* F7MBCompAudioProcessor::createEditor()
 {
-    //return new F7MBCompAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new F7MBCompAudioProcessorEditor (*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
