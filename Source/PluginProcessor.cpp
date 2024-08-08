@@ -8,7 +8,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
+#include "DSP/Params.h"
+ 
 //==============================================================================
 F7MBCompAudioProcessor::F7MBCompAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
