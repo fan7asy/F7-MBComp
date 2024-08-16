@@ -16,8 +16,8 @@ gui goals
 4) band select functionality DONE
 5) band select buttons reflect the solo/mute/bypass state DONE
 6) cool look/feel for buttons/sliders DONE
-7) spectrum analyzer
-8) data structures for spectrum analyzer
+7) spectrum analyzer DONE
+8) data structures for spectrum analyzer DONE
 9) Fifo usage in pluginProcessor::processBlock
 10) implementation of the analyzer using precomputed paths
 11) drawing crossovers on top of analyzer plot

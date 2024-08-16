@@ -193,6 +193,9 @@ void F7MBCompAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     {
         buffer.setSize(spec.numChannels, samplesPerBlock);
     }
+
+    leftChannelFifo.prepare(samplesPerBlock);
+    rightChannelFifo.prepare(samplesPerBlock);
 }
 
 void F7MBCompAudioProcessor::releaseResources()
@@ -286,6 +289,9 @@ void F7MBCompAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         buffer.clear (i, 0, buffer.getNumSamples());
 
     updateState();
+
+    leftChannelFifo.update(buffer);
+    rightChannelFifo.update(buffer);
 
     applyGain(buffer, inputGain);
 
