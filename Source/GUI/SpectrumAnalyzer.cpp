@@ -34,6 +34,28 @@ SpectrumAnalyzer::~SpectrumAnalyzer()
     }
 }
 
+void SpectrumAnalyzer::drawFFTAnalysis(juce::Graphics& g, juce::Rectangle<int> bounds)
+{
+    using namespace juce;
+
+    auto responseArea = getAnalysisArea(bounds);
+
+    Graphics::ScopedSaveState sss(g);
+    g.reduceClipRegion(responseArea);
+
+    auto leftChannelFFTPath = leftPathProducer.getPath();
+    leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), 0 /*responseArea.getY()*/));
+
+    g.setColour(Colours::darkgrey); //left channel color
+    g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
+
+    auto rightChannelFFTPath = rightPathProducer.getPath();
+    rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), 0 /*responseArea.getY()*/));
+
+    g.setColour(Colours::black); //right channel color
+    g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
+}
+
 void SpectrumAnalyzer::paint(juce::Graphics& g)
 {
     using namespace juce;
@@ -44,21 +66,10 @@ void SpectrumAnalyzer::paint(juce::Graphics& g)
 
     drawBackgroundGrid(g, bounds);
 
-    auto responseArea = getAnalysisArea(bounds);
 
     if (shouldShowFFTAnalysis)
     {
-        auto leftChannelFFTPath = leftPathProducer.getPath();
-        leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), 0 /*responseArea.getY()*/));
-
-        g.setColour(Colours::darkgrey); //left channel color
-        g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
-
-        auto rightChannelFFTPath = rightPathProducer.getPath();
-        rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), 0 /*responseArea.getY()*/));
-
-        g.setColour(Colours::black); //right channel color
-        g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
+        drawFFTAnalysis(g, bounds);
     }
 
     Path border;
@@ -82,7 +93,7 @@ std::vector<float> SpectrumAnalyzer::getFrequencies()
 {
     return std::vector<float>
     {
-        20, /*30, 40,*/ 50, 100,
+            20, /*30, 40,*/ 50, 100,
             200, /*300, 400,*/ 500, 1000,
             2000, /*3000, 4000,*/ 5000, 10000,
             20000
