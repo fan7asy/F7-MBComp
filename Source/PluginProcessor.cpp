@@ -416,7 +416,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout F7MBCompAudioProcessor::crea
     layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Gain_In), params.at(Names::Gain_In), gainRange, 0));
     layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Gain_Out), params.at(Names::Gain_Out), gainRange, 0));
 
-    auto thresholdRange = NormalisableRange<float>(-60, 12, 1, 1);
+    auto thresholdRange = NormalisableRange<float>(MIN_THRESHOLD, MAX_DECIBELS, 1, 1);
     layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Threshold_Low_Band), params.at(Names::Threshold_Low_Band), thresholdRange, 0));
     layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Threshold_Mid_Band), params.at(Names::Threshold_Mid_Band), thresholdRange, 0));
     layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Threshold_High_Band), params.at(Names::Threshold_High_Band), thresholdRange, 0));
