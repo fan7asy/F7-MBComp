@@ -298,7 +298,7 @@ void F7MBCompAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     updateState();
 
-    if (true)
+    if (false)
     {
         buffer.clear();
         auto block = juce::dsp::AudioBlock<float>(buffer);

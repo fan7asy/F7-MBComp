@@ -18,8 +18,8 @@ gui goals
 6) cool look/feel for buttons/sliders DONE
 7) spectrum analyzer DONE
 8) data structures for spectrum analyzer DONE
-9) Fifo usage in pluginProcessor::processBlock
-10) implementation of the analyzer using precomputed paths
+9) Fifo usage in pluginProcessor::processBlock DONE
+10) implementation of the analyzer using precomputed paths DONE
 11) drawing crossovers on top of analyzer plot
 12) drawing gain reduction on top of spectrum analyzer
 13) analyzer bypass
