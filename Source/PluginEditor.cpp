@@ -24,6 +24,8 @@ F7MBCompAudioProcessorEditor::F7MBCompAudioProcessorEditor (F7MBCompAudioProcess
 
 
     setSize (600, 500);
+
+    startTimerHz(60);
 }
 
 F7MBCompAudioProcessorEditor::~F7MBCompAudioProcessorEditor()
@@ -58,4 +60,19 @@ void F7MBCompAudioProcessorEditor::resized()
     analyzer.setBounds(bounds.removeFromTop(225));
 
     globalControls.setBounds(bounds);
+}
+
+void F7MBCompAudioProcessorEditor::timerCallback()
+{
+    std::vector<float> values
+    {
+        audioProcessor.lowBandComp.getRMSInputLevelDb(),
+        audioProcessor.lowBandComp.getRMSOutputLevelDb(),
+        audioProcessor.midBandComp.getRMSInputLevelDb(),
+        audioProcessor.midBandComp.getRMSOutputLevelDb(),
+        audioProcessor.highBandComp.getRMSInputLevelDb(),
+        audioProcessor.highBandComp.getRMSOutputLevelDb()
+    };
+
+    analyzer.update(values);
 }

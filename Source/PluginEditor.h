@@ -16,7 +16,7 @@
 #include "GUI/UtilityComponents.h"
 #include "GUI/SpectrumAnalyzer.h"
 
-class F7MBCompAudioProcessorEditor  : public juce::AudioProcessorEditor
+class F7MBCompAudioProcessorEditor  : public juce::AudioProcessorEditor, juce::Timer
 {
 public:
     F7MBCompAudioProcessorEditor (F7MBCompAudioProcessor&);
@@ -26,6 +26,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    void timerCallback() override;
 private:
     LookAndFeel lnf;
     // This reference is provided as a quick way for your editor to
