@@ -22,7 +22,7 @@ void ControlBar::resized()
 {
     auto bounds = getLocalBounds();
 
-    analyzerButton.setBounds(bounds.removeFromLeft(50)
+    analyzerButton.setBounds(bounds.removeFromLeft(65).withTrimmedLeft(10)
         .withTrimmedTop(4)
         .withTrimmedBottom(4));
 
@@ -74,8 +74,30 @@ void F7MBCompAudioProcessorEditor::paint (juce::Graphics& g)
     //g.setColour (juce::Colours::white);
     //g.setFont (15.0f);
     //g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    using namespace juce;
 
-    g.fillAll(juce::Colours::white);
+    g.fillAll(Colours::white);
+
+    auto bounds = getLocalBounds();
+    auto center = bounds.getCentre();
+
+    g.setFont(Font("MGS2 MENU", 30, 0)); 
+    String title{ "F7 MBComp" };
+    g.setFont(26);
+    auto titleWidth = g.getCurrentFont().getStringWidth(title);
+
+
+    //    curve.closeSubPath();
+
+    //    g.setColour(Colour(97u, 18u, 167u));
+
+
+
+    //    g.setColour(Colour(255u, 154u, 1u));
+
+    auto titleBounds = bounds.withTrimmedTop(5); // Adjust the 20 value to control the padding
+
+    g.drawFittedText(title, titleBounds, juce::Justification::centredTop, 1);
 }
 
 void F7MBCompAudioProcessorEditor::resized()
