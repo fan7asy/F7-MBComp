@@ -25,4 +25,4 @@ A compressor RATIO will control how much gain is applied to the signal. (X:1)
 
 A compressor ATTACK controls how long to wait after signal passes threshhold before gain reduction is applied and RELEASE controls how long gain reduction stays after signal leaves threshold.
 
-Compression can be very subtle, even more so when applied to multiple small ranges of frequencies like this. That being said, it may be difficult hearing the effects of an audio compressor, especially if it's your first time. It  takes audio enginereers a while to develop this kind ofauditory sensitivity.
+Compression can be very subtle, even more so when applied to multiple small ranges of frequencies like this. That being said, it may be difficult hearing the effects of an audio compressor, especially if it's your first time. It  takes audio enginereers a while to develop this kind of auditory sensitivity.
